@@ -37,15 +37,22 @@ class BaseModel:
         else:
             for k in kwargs:
                 if k in ['created_at', 'updated_at']:
-                    setattr(self, k, datetime.fromisoformat(kwargs[k]))
+                    v = kwargs[k]
+                    if isinstance(v, str):
+                        try:
+                            v = datetime.strptime(
+                                v, '%Y-%m-%dT%H:%M:%S.%f')
+                        except ValueError:
+                            v = datetime.fromisoformat(v)
+                    setattr(self, k, v)
                 elif k != '__class__':
                     setattr(self, k, kwargs[k])
             if storage_type == 'db':
-                if not hasattr(kwargs, 'id'):
+                if 'id' not in kwargs:
                     setattr(self, 'id', str(uuid.uuid4()))
-                if not hasattr(kwargs, 'created_at'):
+                if 'created_at' not in kwargs:
                     setattr(self, 'created_at', datetime.now())
-                if not hasattr(kwargs, 'updated_at'):
+                if 'updated_at' not in kwargs:
                     setattr(self, 'updated_at', datetime.now())
 
     def __str__(self):
@@ -68,7 +75,7 @@ class BaseModel:
             if type(dct[k]) is datetime:
                 dct[k] = dct[k].isoformat()
         if '_sa_instance_state' in dct.keys():
-            del(dct['_sa_instance_state'])
+            del dct['_sa_instance_state']
         return dct
 
     def delete(self):

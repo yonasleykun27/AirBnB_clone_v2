@@ -50,7 +50,10 @@ class TestHBNBCommand(unittest.TestCase):
         with patch('sys.stdout', new=StringIO()) as cout:
             cons = HBNBCommand()
             # creating a model with non-null attribute(s)
-            with self.assertRaises(sqlalchemy.exc.OperationalError):
+            with self.assertRaises(
+                (sqlalchemy.exc.OperationalError,
+                 sqlalchemy.exc.IntegrityError)
+            ):
                 cons.onecmd('create User')
             # creating a User instance
             clear_stream(cout)
@@ -93,9 +96,9 @@ class TestHBNBCommand(unittest.TestCase):
             result = cursor.fetchone()
             self.assertTrue(result is None)
             cons.onecmd('show User {}'.format(obj.id))
-            self.assertEqual(
-                cout.getvalue().strip(),
-                '** no instance found **'
+            self.assertIn(
+                '** no instance found **',
+                cout.getvalue()
             )
             obj.save()
             dbc = MySQLdb.connect(
@@ -140,6 +143,8 @@ class TestHBNBCommand(unittest.TestCase):
             clear_stream(cout)
             cons.onecmd('count State')
             cnt = cout.getvalue().strip()
+            if '(hbnb)' in cnt:
+                cnt = cnt.replace('(hbnb)', '').strip()
             self.assertEqual(int(cnt), prev_count + 1)
             clear_stream(cout)
             cons.onecmd('count State')

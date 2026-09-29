@@ -7,6 +7,7 @@ from uuid import UUID
 import json
 import os
 
+
 @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') == 'db',
                  'basemodel test not supported')
 class test_basemodel(unittest.TestCase):
@@ -146,7 +147,7 @@ class test_basemodel(unittest.TestCase):
         """ testing kwargs again with none"""
         n = {None: None}
         with self.assertRaises(TypeError):
-            new = self.value(**n)
+            new = self.value(**n)  # type: ignore
 
     def test_kwargs_one(self):
         """ testing kwargs with one arg"""
