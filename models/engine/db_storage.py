@@ -82,8 +82,7 @@ class DBStorage:
             is it's not None
         '''
         if obj is not None:
-            self.__session.query(type(obj)).filter(
-                type(obj).id == obj.id).delete()
+            self.__session.delete(obj)
 
     def reload(self):
         '''reloads the database'''
